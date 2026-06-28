@@ -129,8 +129,16 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
         )}
       </div>
       {status === "correct" && (
-        <div className="exercise-status correct">
-          <p>¡Correcto! {exercise.explanation}</p>
+        <div className="correct-overlay" onClick={reset}>
+          <div className="correct-circle" onClick={(e) => e.stopPropagation()}>
+            <svg viewBox="0 0 52 52" className="correct-tick">
+              <circle cx="26" cy="26" r="25" />
+              <path d="M14 27l7 7 17-17" />
+            </svg>
+          </div>
+          <p className="correct-explanation" onClick={(e) => e.stopPropagation()}>
+            {exercise.explanation}
+          </p>
           <button onClick={reset} className="btn-sm">
             Reintentar
           </button>

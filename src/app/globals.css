@@ -352,6 +352,55 @@ button[type="submit"]:hover,
   color: var(--danger);
 }
 
+.correct-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 5, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 100;
+  cursor: pointer;
+  padding: 24px;
+  text-align: center;
+}
+
+.correct-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #2f4a33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 8px rgba(47, 74, 51, 0.35);
+}
+
+.correct-tick {
+  width: 64px;
+  height: 64px;
+}
+
+.correct-tick circle {
+  fill: none;
+}
+
+.correct-tick path {
+  fill: none;
+  stroke: #6a9955;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.correct-explanation {
+  color: var(--text);
+  max-width: 420px;
+  font-size: 1rem;
+}
+
 .level-section {
   margin-bottom: 28px;
 }
