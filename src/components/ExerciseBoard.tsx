@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Chess, type PieceSymbol, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import type { Exercise } from "@/lib/types";
@@ -21,7 +20,6 @@ const PROMOTION_ICONS: Record<"w" | "b", Record<PieceSymbol, string>> = {
 };
 
 export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
-  const router = useRouter();
   const [game, setGame] = useState(() => new Chess(exercise.fen));
   const [status, setStatus] = useState<Status>("playing");
   const [pendingPromotion, setPendingPromotion] = useState<{
@@ -141,7 +139,7 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
                 <path d="M14 27l7 7 17-17" />
               </svg>
             </div>
-            <button onClick={() => router.push(`/lesson/${exercise.lessonId}`)} className="btn-sm">
+            <button onClick={reset} className="btn-sm">
               Volver
             </button>
           </div>
