@@ -17,6 +17,7 @@ export interface Exercise {
   fen: string;
   mode?: "free" | "sequence";
   scored?: boolean;
+  mateIn?: number;
   fromSquare?: string;
   requireFlag?: string;
   requireDirection?: "horizontal" | "vertical" | "diagonal";
