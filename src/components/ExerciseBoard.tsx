@@ -50,6 +50,17 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
       return;
     }
 
+    if (exercise.requireDirection) {
+      const fileDiff = Math.abs(from.charCodeAt(0) - to.charCodeAt(0));
+      const rankDiff = Math.abs(Number(from[1]) - Number(to[1]));
+      const direction =
+        fileDiff === 0 ? "vertical" : rankDiff === 0 ? "horizontal" : "diagonal";
+      if (direction !== exercise.requireDirection) {
+        setStatus("wrong-move-type");
+        return;
+      }
+    }
+
     setGame(next);
     setStatus("correct");
   }

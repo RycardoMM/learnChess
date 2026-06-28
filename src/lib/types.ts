@@ -15,6 +15,7 @@ export interface Exercise {
   fen: string;
   fromSquare: string;
   requireFlag?: string;
+  requireDirection?: "horizontal" | "vertical" | "diagonal";
   solution: string[];
   explanation: string;
   order: number;
