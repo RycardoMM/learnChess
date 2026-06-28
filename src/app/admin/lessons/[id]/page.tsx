@@ -2,20 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getLesson } from "@/lib/lessons";
+import { getLesson, updateLesson } from "@/lib/lessons";
 import {
   getExercisesByLesson,
   createExercise,
   updateExercise,
   deleteExercise,
 } from "@/lib/exercises";
-import type { Lesson, Exercise } from "@/lib/types";
+import type { Lesson, Exercise, Level, Category } from "@/lib/types";
 import FenBoardEditor from "@/components/FenBoardEditor";
 
 export default function AdminLessonExercisesPage() {
   const { id } = useParams<{ id: string }>();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [exercises, setExercises] = useState<Exercise[]>([]);
+
+  const [lessonTitle, setLessonTitle] = useState("");
+  const [lessonLevel, setLessonLevel] = useState<Level>("basico");
+  const [lessonCategory, setLessonCategory] = useState<Category>("movimientos");
+  const [lessonContent, setLessonContent] = useState("");
 
   const [title, setTitle] = useState("");
   const [fen, setFen] = useState("");
@@ -33,9 +38,30 @@ export default function AdminLessonExercisesPage() {
   }
 
   useEffect(() => {
-    getLesson(id).then(setLesson);
+    getLesson(id).then((l) => {
+      setLesson(l);
+      if (l) {
+        setLessonTitle(l.title);
+        setLessonLevel(l.level);
+        setLessonCategory(l.category);
+        setLessonContent(l.content);
+      }
+    });
     refresh();
   }, [id]);
+
+  async function handleLessonSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await updateLesson(id, {
+      title: lessonTitle,
+      level: lessonLevel,
+      category: lessonCategory,
+      content: lessonContent,
+    });
+    setLesson((l) =>
+      l ? { ...l, title: lessonTitle, level: lessonLevel, category: lessonCategory, content: lessonContent } : l
+    );
+  }
 
   function resetForm() {
     setTitle("");
@@ -95,7 +121,38 @@ export default function AdminLessonExercisesPage() {
 
   return (
     <main className="page">
-      <h1>Ejercicios: {lesson.title}</h1>
+      <h1>Editar lección: {lesson.title}</h1>
+
+      <form onSubmit={handleLessonSubmit} className="card" style={{ marginTop: 16 }}>
+        <input
+          value={lessonTitle}
+          onChange={(e) => setLessonTitle(e.target.value)}
+          placeholder="Título"
+          required
+        />
+        <select value={lessonLevel} onChange={(e) => setLessonLevel(e.target.value as Level)}>
+          <option value="basico">Básico</option>
+          <option value="intermedio">Intermedio</option>
+          <option value="avanzado">Avanzado</option>
+        </select>
+        <select
+          value={lessonCategory}
+          onChange={(e) => setLessonCategory(e.target.value as Category)}
+        >
+          <option value="movimientos">Movimientos de las piezas</option>
+          <option value="jaquemate">Jaque mate</option>
+          <option value="apertura">Aperturas</option>
+        </select>
+        <textarea
+          value={lessonContent}
+          onChange={(e) => setLessonContent(e.target.value)}
+          placeholder="Contenido"
+          required
+        />
+        <button type="submit">Guardar lección</button>
+      </form>
+
+      <h2>Ejercicios</h2>
 
       <form onSubmit={handleSubmit} className="card" style={{ marginTop: 16 }}>
         <input

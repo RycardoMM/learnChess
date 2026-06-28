@@ -3,12 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  getLessons,
-  createLesson,
-  updateLesson,
-  deleteLesson,
-} from "@/lib/lessons";
+import { getLessons, createLesson, deleteLesson } from "@/lib/lessons";
 import type { Lesson, Level, Category } from "@/lib/types";
 
 export default function AdminPage() {
@@ -17,7 +12,6 @@ export default function AdminPage() {
   const [level, setLevel] = useState<Level>("basico");
   const [category, setCategory] = useState<Category>("movimientos");
   const [content, setContent] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
 
   async function refresh() {
@@ -33,26 +27,13 @@ export default function AdminPage() {
     setLevel("basico");
     setCategory("movimientos");
     setContent("");
-    setEditingId(null);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (editingId) {
-      await updateLesson(editingId, { title, level, category, content });
-    } else {
-      await createLesson({ title, level, category, content, order: lessons.length });
-    }
+    await createLesson({ title, level, category, content, order: lessons.length });
     resetForm();
     refresh();
-  }
-
-  function startEdit(lesson: Lesson) {
-    setEditingId(lesson.id);
-    setTitle(lesson.title);
-    setLevel(lesson.level);
-    setCategory(lesson.category);
-    setContent(lesson.content);
   }
 
   async function handleDelete(id: string) {
@@ -97,14 +78,7 @@ export default function AdminPage() {
           placeholder="Contenido"
           required
         />
-        <div className="row-actions">
-          <button type="submit">{editingId ? "Actualizar" : "Crear"}</button>
-          {editingId && (
-            <button type="button" onClick={resetForm}>
-              Cancelar
-            </button>
-          )}
-        </div>
+        <button type="submit">Crear</button>
       </form>
 
       <ul className="card-list" style={{ marginTop: 16 }}>
@@ -117,11 +91,8 @@ export default function AdminPage() {
             </span>
             <span className="row-actions">
               <Link href={`/admin/lessons/${lesson.id}`} className="btn btn-sm">
-                Ejercicios
-              </Link>
-              <button onClick={() => startEdit(lesson)} className="btn-sm">
                 Editar
-              </button>
+              </Link>
               <button onClick={() => handleDelete(lesson.id)} className="btn-sm btn-danger">
                 Borrar
               </button>
