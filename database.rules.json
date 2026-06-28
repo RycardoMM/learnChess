@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "lessons": {
+      ".read": true,
+      ".write": false
+    },
+    "exercises": {
+      ".read": true,
+      ".write": false
+    }
+  }
+}

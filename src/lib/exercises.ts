@@ -1,34 +1,40 @@
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-} from "firebase/firestore";
-import { db } from "./firebase";
+import { ref, get, query, orderByChild, equalTo } from "firebase/database";
+import { rtdb } from "./firebase";
 import type { Exercise } from "./types";
 
-const exercisesRef = collection(db, "exercises");
-
 export async function getExercisesByLesson(lessonId: string): Promise<Exercise[]> {
-  const snap = await getDocs(
-    query(exercisesRef, where("lessonId", "==", lessonId), orderBy("order"))
+  const snap = await get(
+    query(ref(rtdb, "exercises"), orderByChild("lessonId"), equalTo(lessonId))
   );
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Exercise));
+  if (!snap.exists()) return [];
+  const data = snap.val() as Record<string, Omit<Exercise, "id">>;
+  return Object.entries(data)
+    .map(([id, value]) => ({ id, ...value }))
+    .sort((a, b) => a.order - b.order);
 }
 
 export async function createExercise(data: Omit<Exercise, "id">) {
-  return addDoc(exercisesRef, data);
+  const res = await fetch("/api/exercises", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("No se pudo crear el ejercicio");
+  return res.json();
 }
 
 export async function updateExercise(id: string, data: Partial<Omit<Exercise, "id">>) {
-  return updateDoc(doc(exercisesRef, id), data);
+  const res = await fetch(`/api/exercises/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("No se pudo actualizar el ejercicio");
+  return res.json();
 }
 
 export async function deleteExercise(id: string) {
-  return deleteDoc(doc(exercisesRef, id));
+  const res = await fetch(`/api/exercises/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("No se pudo borrar el ejercicio");
+  return res.json();
 }
