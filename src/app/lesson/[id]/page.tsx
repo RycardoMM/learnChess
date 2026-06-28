@@ -11,13 +11,19 @@ export default function LessonPage() {
   const { id } = useParams<{ id: string }>();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     getLesson(id).then(setLesson);
-    getExercisesByLesson(id).then(setExercises);
+    getExercisesByLesson(id).then((data) => {
+      setExercises(data);
+      setActiveIndex(0);
+    });
   }, [id]);
 
   if (!lesson) return <main className="page">Cargando...</main>;
+
+  const active = exercises[activeIndex];
 
   return (
     <main className="page">
@@ -27,9 +33,23 @@ export default function LessonPage() {
 
       <h2>Ejercicios</h2>
       {exercises.length === 0 && <p className="empty-state">Sin ejercicios todavía</p>}
-      {exercises.map((ex) => (
-        <ExerciseBoard key={ex.id} exercise={ex} />
-      ))}
+
+      {exercises.length > 0 && (
+        <>
+          <div className="tabs">
+            {exercises.map((ex, i) => (
+              <button
+                key={ex.id}
+                className={`tab ${i === activeIndex ? "tab-active" : ""}`}
+                onClick={() => setActiveIndex(i)}
+              >
+                {i + 1}. {ex.title}
+              </button>
+            ))}
+          </div>
+          {active && <ExerciseBoard key={active.id} exercise={active} />}
+        </>
+      )}
     </main>
   );
 }
