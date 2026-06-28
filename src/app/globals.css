@@ -21,7 +21,7 @@ html {
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -82,14 +82,19 @@ html {
   width: 100%;
 }
 
-.home-layout {
+.app-shell {
   display: flex;
+  align-items: flex-start;
   flex: 1;
 }
 
-.home-layout .page {
-  margin: 0;
+.app-shell > main {
   flex: 1;
+  min-width: 0;
+}
+
+.app-shell > .page {
+  margin: 0;
 }
 
 .sidebar {
@@ -138,7 +143,7 @@ html {
 }
 
 @media (max-width: 700px) {
-  .home-layout {
+  .app-shell {
     flex-direction: column;
   }
   .sidebar {
