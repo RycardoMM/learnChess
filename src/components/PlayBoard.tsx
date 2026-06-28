@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Chess, type PieceSymbol, type Square } from "chess.js";
 import { getBestMove } from "@/lib/chessEngine";
 import CoordBoard from "./CoordBoard";
@@ -43,8 +43,10 @@ function movePairs(history: string[]) {
 }
 
 export default function PlayBoard() {
+  const gameRef = useRef(new Chess());
   const [difficulty, setDifficulty] = useState<Difficulty>("facil");
-  const [game, setGame] = useState(() => new Chess());
+  const [fen, setFen] = useState(gameRef.current.fen());
+  const [history, setHistory] = useState<string[]>([]);
   const [thinking, setThinking] = useState(false);
   const [pendingPromotion, setPendingPromotion] = useState<{
     from: string;
@@ -52,50 +54,52 @@ export default function PlayBoard() {
     color: "w" | "b";
   } | null>(null);
   const moveLock = useRef(false);
-  const position = useMemo(() => game.fen(), [game]);
-  const overMessage = gameOverMessage(game);
-  const history = useMemo(() => game.history(), [game]);
+  const overMessage = gameOverMessage(gameRef.current);
+
+  function syncState() {
+    setFen(gameRef.current.fen());
+    setHistory(gameRef.current.history());
+  }
 
   function newGame() {
     moveLock.current = false;
-    setGame(new Chess());
+    gameRef.current = new Chess();
     setThinking(false);
     setPendingPromotion(null);
+    syncState();
   }
 
-  async function playAiReply(afterHuman: Chess) {
-    if (afterHuman.isGameOver()) {
+  async function playAiReply() {
+    if (gameRef.current.isGameOver()) {
       moveLock.current = false;
       return;
     }
     setThinking(true);
-    const engineMove = await getBestMove(afterHuman.fen(), DIFFICULTY_DEPTH[difficulty]);
-    const next = new Chess(afterHuman.fen());
+    const engineMove = await getBestMove(gameRef.current.fen(), DIFFICULTY_DEPTH[difficulty]);
     try {
       if (engineMove) {
-        next.move({
+        gameRef.current.move({
           from: engineMove.from,
           to: engineMove.to,
           promotion: engineMove.promotion as PieceSymbol | undefined,
         });
       } else {
-        const legal = next.moves();
-        if (legal.length > 0) next.move(legal[0]);
+        const legal = gameRef.current.moves();
+        if (legal.length > 0) gameRef.current.move(legal[0]);
       }
     } catch {
-      const legal = next.moves();
-      if (legal.length > 0) next.move(legal[0]);
+      const legal = gameRef.current.moves();
+      if (legal.length > 0) gameRef.current.move(legal[0]);
     }
-    setGame(next);
+    syncState();
     setThinking(false);
     moveLock.current = false;
   }
 
   function applyHumanMove(from: string, to: string, promotion?: PieceSymbol) {
-    const next = new Chess(game.fen());
     let move;
     try {
-      move = next.move({ from, to, promotion });
+      move = gameRef.current.move({ from, to, promotion });
     } catch {
       move = null;
     }
@@ -103,8 +107,8 @@ export default function PlayBoard() {
       moveLock.current = false;
       return;
     }
-    setGame(next);
-    playAiReply(next);
+    syncState();
+    playAiReply();
   }
 
   function onPieceDrop({
@@ -115,19 +119,16 @@ export default function PlayBoard() {
     targetSquare: string | null;
   }) {
     if (!targetSquare || thinking || moveLock.current || overMessage) return false;
-    if (game.turn() !== "w") return false;
+    if (gameRef.current.turn() !== "w") return false;
 
-    const isLegal = game
-      .moves({ square: sourceSquare as Square, verbose: true })
-      .some((m) => m.to === targetSquare);
+    const candidateMoves = gameRef.current.moves({ square: sourceSquare as Square, verbose: true });
+    const isLegal = candidateMoves.some((m) => m.to === targetSquare);
     if (!isLegal) return false;
 
-    const isPromotion = game
-      .moves({ square: sourceSquare as Square, verbose: true })
-      .some((m) => m.to === targetSquare && m.promotion);
+    const isPromotion = candidateMoves.some((m) => m.to === targetSquare && m.promotion);
 
     if (isPromotion) {
-      setPendingPromotion({ from: sourceSquare, to: targetSquare, color: game.turn() });
+      setPendingPromotion({ from: sourceSquare, to: targetSquare, color: gameRef.current.turn() });
       return true;
     }
 
@@ -164,7 +165,7 @@ export default function PlayBoard() {
 
       <div className="play-layout">
         <CoordBoard
-          options={{ position, onPieceDrop, id: "play-vs-ai" }}
+          options={{ position: fen, onPieceDrop, id: "play-vs-ai" }}
           overlay={
             <>
               {pendingPromotion && (
