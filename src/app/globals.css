@@ -108,7 +108,10 @@ html {
 }
 
 .back-link {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
   margin-bottom: 14px;
   font-size: 0.85rem;
   color: var(--text-dim);
