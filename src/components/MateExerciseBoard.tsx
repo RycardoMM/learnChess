@@ -3,9 +3,10 @@
 import { useMemo, useRef, useState } from "react";
 import { Chess, type PieceSymbol, type Square } from "chess.js";
 import type { Exercise } from "@/lib/types";
+import { getBestMove } from "@/lib/chessEngine";
 import CoordBoard from "./CoordBoard";
 
-type Status = "playing" | "correct" | "incorrect";
+type Status = "playing" | "correct" | "incorrect" | "thinking";
 
 const PROMOTION_CHOICES: { piece: PieceSymbol; label: string }[] = [
   { piece: "q", label: "Dama" },
@@ -40,7 +41,7 @@ export default function MateExerciseBoard({ exercise }: { exercise: Exercise }) 
     setPendingPromotion(null);
   }
 
-  function applyMove(from: string, to: string, promotion?: PieceSymbol) {
+  async function applyMove(from: string, to: string, promotion?: PieceSymbol) {
     const next = new Chess(game.fen());
     let move;
     try {
@@ -73,11 +74,28 @@ export default function MateExerciseBoard({ exercise }: { exercise: Exercise }) 
       setStatus("incorrect");
       return;
     }
+
+    setStatus("thinking");
+    const engineMove = await getBestMove(next.fen());
+
     opponentTimer.current = setTimeout(() => {
       const afterReply = new Chess(next.fen());
-      afterReply.move(replies[0]);
+      try {
+        if (engineMove) {
+          afterReply.move({
+            from: engineMove.from,
+            to: engineMove.to,
+            promotion: engineMove.promotion as PieceSymbol | undefined,
+          });
+        } else {
+          afterReply.move(replies[0]);
+        }
+      } catch {
+        afterReply.move(replies[0]);
+      }
       setGame(afterReply);
-    }, 600);
+      setStatus("playing");
+    }, 400);
   }
 
   function onPieceDrop({
@@ -110,7 +128,10 @@ export default function MateExerciseBoard({ exercise }: { exercise: Exercise }) 
 
   return (
     <div className="exercise-card">
-      <h3>{exercise.title}</h3>
+      <div className="exercise-card-header">
+        <h3>{exercise.title}</h3>
+        {status === "thinking" && <span className="score-badge">Pensando…</span>}
+      </div>
       <CoordBoard
         options={{ position, onPieceDrop, id: exercise.id }}
         overlay={
