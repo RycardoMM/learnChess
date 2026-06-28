@@ -10,6 +10,7 @@ import {
   deleteExercise,
 } from "@/lib/exercises";
 import type { Lesson, Exercise } from "@/lib/types";
+import FenBoardEditor from "@/components/FenBoardEditor";
 
 export default function AdminLessonExercisesPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ export default function AdminLessonExercisesPage() {
   const [solution, setSolution] = useState("");
   const [explanation, setExplanation] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [showBoardEditor, setShowBoardEditor] = useState(false);
 
   async function refresh() {
     setExercises(await getExercisesByLesson(id));
@@ -106,6 +108,15 @@ export default function AdminLessonExercisesPage() {
           placeholder="FEN (posición inicial)"
           required
         />
+        <button
+          type="button"
+          className="btn-sm"
+          style={{ marginBottom: 10 }}
+          onClick={() => setShowBoardEditor((s) => !s)}
+        >
+          {showBoardEditor ? "Ocultar editor visual" : "Editar tablero visualmente"}
+        </button>
+        {showBoardEditor && <FenBoardEditor value={fen} onChange={setFen} />}
         <select value={mode} onChange={(e) => setMode(e.target.value as "free" | "sequence")}>
           <option value="free">Libre (cualquier jugada legal desde una casilla)</option>
           <option value="sequence">Secuencia (movimientos exactos, rival automático)</option>

@@ -805,3 +805,110 @@ button[type="submit"]:hover,
   margin: 100px auto 0;
   padding: 0 20px;
 }
+
+.fen-editor {
+  margin-bottom: 14px;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.fen-palette {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.fen-piece-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 1.4rem;
+  background: var(--card);
+}
+
+.fen-piece-active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.fen-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 320px;
+  border: 3px solid var(--card);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.fen-square {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fen-square-light {
+  background: #e8d3a9;
+}
+
+.fen-square-dark {
+  background: #b78a5a;
+}
+
+.fen-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fen-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.fen-controls select {
+  width: auto;
+  margin-bottom: 0;
+}
+
+.fen-castling {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fen-castling legend {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.fen-castling label {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.fen-castling input[type="checkbox"] {
+  width: auto;
+  margin-bottom: 0;
+}
+
+.fen-output {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.78rem;
+}
