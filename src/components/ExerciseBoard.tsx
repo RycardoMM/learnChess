@@ -43,9 +43,13 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
     try {
       move = next.move({ from, to, promotion });
     } catch {
+      setStatus("incorrect");
       return;
     }
-    if (!move) return;
+    if (!move) {
+      setStatus("incorrect");
+      return;
+    }
 
     if (exercise.requireFlag && !move.flags.includes(exercise.requireFlag)) {
       setStatus("incorrect");
