@@ -61,6 +61,11 @@ export default function MateExerciseBoard({ exercise }: { exercise: Exercise }) 
       return;
     }
 
+    if (!next.isCheck()) {
+      setStatus("incorrect");
+      return;
+    }
+
     const movesUsed = userMoves + 1;
     setUserMoves(movesUsed);
 
