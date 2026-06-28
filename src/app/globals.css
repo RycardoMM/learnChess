@@ -485,6 +485,21 @@ button[type="submit"]:hover,
   max-width: 640px;
 }
 
+.elo-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.elo-select select {
+  width: auto;
+  margin-bottom: 0;
+  padding: 6px 10px;
+}
+
 .play-layout {
   display: flex;
   gap: 16px;

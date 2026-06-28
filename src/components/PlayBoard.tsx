@@ -5,13 +5,14 @@ import { Chess, type PieceSymbol, type Square } from "chess.js";
 import { getBestMove } from "@/lib/chessEngine";
 import CoordBoard from "./CoordBoard";
 
-type Difficulty = "facil" | "medio" | "dificil";
-
-const DIFFICULTY_DEPTH: Record<Difficulty, number> = {
-  facil: 2,
-  medio: 6,
-  dificil: 12,
-};
+const ELO_OPTIONS = [
+  { elo: 800, depth: 1 },
+  { elo: 1200, depth: 3 },
+  { elo: 1600, depth: 6 },
+  { elo: 2000, depth: 9 },
+  { elo: 2350, depth: 12 },
+  { elo: 2750, depth: 18 },
+];
 
 const PROMOTION_CHOICES: { piece: PieceSymbol; label: string }[] = [
   { piece: "q", label: "Dama" },
@@ -44,7 +45,7 @@ function movePairs(history: string[]) {
 
 export default function PlayBoard() {
   const gameRef = useRef(new Chess());
-  const [difficulty, setDifficulty] = useState<Difficulty>("facil");
+  const [elo, setElo] = useState(ELO_OPTIONS[0].elo);
   const [fen, setFen] = useState(gameRef.current.fen());
   const [history, setHistory] = useState<string[]>([]);
   const [thinking, setThinking] = useState(false);
@@ -75,7 +76,8 @@ export default function PlayBoard() {
       return;
     }
     setThinking(true);
-    const engineMove = await getBestMove(gameRef.current.fen(), DIFFICULTY_DEPTH[difficulty]);
+    const depth = ELO_OPTIONS.find((o) => o.elo === elo)?.depth ?? 2;
+    const engineMove = await getBestMove(gameRef.current.fen(), depth);
     try {
       if (engineMove) {
         gameRef.current.move({
@@ -151,17 +153,16 @@ export default function PlayBoard() {
         {thinking && <span className="score-badge">Pensando…</span>}
       </div>
 
-      <div className="mode-toggle">
-        {(["facil", "medio", "dificil"] as Difficulty[]).map((d) => (
-          <button
-            key={d}
-            className={`tab ${difficulty === d ? "tab-active" : ""}`}
-            onClick={() => setDifficulty(d)}
-          >
-            {d === "facil" ? "Facil" : d === "medio" ? "Medio" : "Dificil"}
-          </button>
-        ))}
-      </div>
+      <label className="elo-select">
+        Nivel ELO de la IA
+        <select value={elo} onChange={(e) => setElo(Number(e.target.value))}>
+          {ELO_OPTIONS.map((o) => (
+            <option key={o.elo} value={o.elo}>
+              {o.elo}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <div className="play-layout">
         <CoordBoard
