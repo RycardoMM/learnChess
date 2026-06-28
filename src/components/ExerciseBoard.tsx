@@ -14,12 +14,18 @@ const PROMOTION_CHOICES: { piece: PieceSymbol; label: string }[] = [
   { piece: "b", label: "Alfil" },
 ];
 
+const PROMOTION_ICONS: Record<"w" | "b", Record<PieceSymbol, string>> = {
+  w: { q: "♕", r: "♖", n: "♘", b: "♗", p: "♙", k: "♔" },
+  b: { q: "♛", r: "♜", n: "♞", b: "♝", p: "♟", k: "♚" },
+};
+
 export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
   const [game, setGame] = useState(() => new Chess(exercise.fen));
   const [status, setStatus] = useState<Status>("playing");
   const [pendingPromotion, setPendingPromotion] = useState<{
     from: string;
     to: string;
+    color: "w" | "b";
   } | null>(null);
   const position = useMemo(() => game.fen(), [game]);
 
@@ -67,7 +73,7 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
       .some((m) => m.to === targetSquare && m.promotion);
 
     if (isPromotion) {
-      setPendingPromotion({ from: sourceSquare, to: targetSquare });
+      setPendingPromotion({ from: sourceSquare, to: targetSquare, color: game.turn() });
       return true;
     }
 
@@ -97,8 +103,14 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
             <p>Elige la pieza:</p>
             <div className="promotion-choices">
               {PROMOTION_CHOICES.map(({ piece, label }) => (
-                <button key={piece} onClick={() => choosePromotion(piece)}>
-                  {label}
+                <button
+                  key={piece}
+                  onClick={() => choosePromotion(piece)}
+                  className="promotion-choice"
+                  title={label}
+                  aria-label={label}
+                >
+                  {PROMOTION_ICONS[pendingPromotion.color][piece]}
                 </button>
               ))}
             </div>

@@ -317,6 +317,18 @@ button[type="submit"]:hover,
   gap: 8px;
 }
 
+.promotion-choice {
+  font-size: 2.2rem;
+  line-height: 1;
+  padding: 8px 14px;
+  background: var(--bg-elevated);
+}
+
+.promotion-choice:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
 .exercise-status {
   margin-top: 10px;
   font-size: 0.9rem;
