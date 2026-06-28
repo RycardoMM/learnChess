@@ -1,20 +1,51 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Chess } from "chess.js";
+import { Chess, type PieceSymbol, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import type { Exercise } from "@/lib/types";
 
 type Status = "playing" | "correct" | "wrong-piece" | "wrong-move-type";
 
+const PROMOTION_CHOICES: { piece: PieceSymbol; label: string }[] = [
+  { piece: "q", label: "Dama" },
+  { piece: "r", label: "Torre" },
+  { piece: "n", label: "Caballo" },
+  { piece: "b", label: "Alfil" },
+];
+
 export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
   const [game, setGame] = useState(() => new Chess(exercise.fen));
   const [status, setStatus] = useState<Status>("playing");
+  const [pendingPromotion, setPendingPromotion] = useState<{
+    from: string;
+    to: string;
+  } | null>(null);
   const position = useMemo(() => game.fen(), [game]);
 
   function reset() {
     setGame(new Chess(exercise.fen));
     setStatus("playing");
+    setPendingPromotion(null);
+  }
+
+  function applyMove(from: string, to: string, promotion?: PieceSymbol) {
+    const next = new Chess(game.fen());
+    let move;
+    try {
+      move = next.move({ from, to, promotion });
+    } catch {
+      return;
+    }
+    if (!move) return;
+
+    if (exercise.requireFlag && !move.flags.includes(exercise.requireFlag)) {
+      setStatus("wrong-move-type");
+      return;
+    }
+
+    setGame(next);
+    setStatus("correct");
   }
 
   function onPieceDrop({
@@ -31,35 +62,49 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
       return false;
     }
 
-    const next = new Chess(game.fen());
-    let move;
-    try {
-      move = next.move({ from: sourceSquare, to: targetSquare, promotion: "q" });
-    } catch {
-      return false;
-    }
-    if (!move) return false;
+    const isPromotion = game
+      .moves({ square: sourceSquare as Square, verbose: true })
+      .some((m) => m.to === targetSquare && m.promotion);
 
-    if (exercise.requireFlag && !move.flags.includes(exercise.requireFlag)) {
-      setStatus("wrong-move-type");
-      return false;
+    if (isPromotion) {
+      setPendingPromotion({ from: sourceSquare, to: targetSquare });
+      return true;
     }
 
-    setGame(next);
-    setStatus("correct");
+    applyMove(sourceSquare, targetSquare);
     return true;
+  }
+
+  function choosePromotion(piece: PieceSymbol) {
+    if (!pendingPromotion) return;
+    applyMove(pendingPromotion.from, pendingPromotion.to, piece);
+    setPendingPromotion(null);
   }
 
   return (
     <div className="exercise-card">
       <h3>{exercise.title}</h3>
-      <Chessboard
-        options={{
-          position,
-          onPieceDrop,
-          id: exercise.id,
-        }}
-      />
+      <div className="board-wrap">
+        <Chessboard
+          options={{
+            position,
+            onPieceDrop,
+            id: exercise.id,
+          }}
+        />
+        {pendingPromotion && (
+          <div className="promotion-overlay">
+            <p>Elige la pieza:</p>
+            <div className="promotion-choices">
+              {PROMOTION_CHOICES.map(({ piece, label }) => (
+                <button key={piece} onClick={() => choosePromotion(piece)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
       {status === "correct" && (
         <div className="exercise-status correct">
           <p>¡Correcto! {exercise.explanation}</p>
