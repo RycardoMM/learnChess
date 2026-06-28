@@ -11,6 +11,20 @@ const LEVELS: { value: Level; label: string }[] = [
   { value: "avanzado", label: "Avanzado" },
 ];
 
+const PIECE_ICONS: { match: string; icon: string }[] = [
+  { match: "peon", icon: "♙" },
+  { match: "torre", icon: "♖" },
+  { match: "caballo", icon: "♘" },
+  { match: "alfil", icon: "♗" },
+  { match: "dama", icon: "♕" },
+  { match: "rey", icon: "♔" },
+];
+
+function iconFor(title: string) {
+  const lower = title.toLowerCase();
+  return PIECE_ICONS.find((p) => lower.includes(p.match))?.icon ?? "♟";
+}
+
 export default function HomePage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
 
@@ -31,11 +45,13 @@ export default function HomePage() {
             {items.length === 0 ? (
               <p className="empty-state">Sin lecciones todavía</p>
             ) : (
-              <ul className="card-list">
+              <ul className="card-list lesson-list">
                 {items.map((l) => (
-                  <li key={l.id}>
-                    <Link href={`/lesson/${l.id}`}>{l.title}</Link>
-                    <span className={`badge badge-${l.level}`}>{label}</span>
+                  <li key={l.id} className="lesson-item">
+                    <Link href={`/lesson/${l.id}`} className="lesson-link">
+                      <span className="lesson-icon">{iconFor(l.title)}</span>
+                      <span>{l.title}</span>
+                    </Link>
                   </li>
                 ))}
               </ul>
