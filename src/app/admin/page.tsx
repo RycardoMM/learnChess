@@ -9,12 +9,13 @@ import {
   updateLesson,
   deleteLesson,
 } from "@/lib/lessons";
-import type { Lesson, Level } from "@/lib/types";
+import type { Lesson, Level, Category } from "@/lib/types";
 
 export default function AdminPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [title, setTitle] = useState("");
   const [level, setLevel] = useState<Level>("basico");
+  const [category, setCategory] = useState<Category>("movimientos");
   const [content, setContent] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function AdminPage() {
   function resetForm() {
     setTitle("");
     setLevel("basico");
+    setCategory("movimientos");
     setContent("");
     setEditingId(null);
   }
@@ -37,9 +39,9 @@ export default function AdminPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (editingId) {
-      await updateLesson(editingId, { title, level, content });
+      await updateLesson(editingId, { title, level, category, content });
     } else {
-      await createLesson({ title, level, content, order: lessons.length });
+      await createLesson({ title, level, category, content, order: lessons.length });
     }
     resetForm();
     refresh();
@@ -49,6 +51,7 @@ export default function AdminPage() {
     setEditingId(lesson.id);
     setTitle(lesson.title);
     setLevel(lesson.level);
+    setCategory(lesson.category);
     setContent(lesson.content);
   }
 
@@ -83,6 +86,11 @@ export default function AdminPage() {
           <option value="intermedio">Intermedio</option>
           <option value="avanzado">Avanzado</option>
         </select>
+        <select value={category} onChange={(e) => setCategory(e.target.value as Category)}>
+          <option value="movimientos">Movimientos de las piezas</option>
+          <option value="jaquemate">Jaque mate</option>
+          <option value="apertura">Aperturas</option>
+        </select>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -104,7 +112,8 @@ export default function AdminPage() {
           <li key={lesson.id}>
             <span>
               <strong>{lesson.title}</strong>{" "}
-              <span className={`badge badge-${lesson.level}`}>{lesson.level}</span>
+              <span className={`badge badge-${lesson.level}`}>{lesson.level}</span>{" "}
+              <span className="badge">{lesson.category}</span>
             </span>
             <span className="row-actions">
               <Link href={`/admin/lessons/${lesson.id}`} className="btn btn-sm">

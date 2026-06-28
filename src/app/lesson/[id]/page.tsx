@@ -7,6 +7,7 @@ import { getLesson } from "@/lib/lessons";
 import { getExercisesByLesson } from "@/lib/exercises";
 import type { Lesson, Exercise } from "@/lib/types";
 import ExerciseBoard from "@/components/ExerciseBoard";
+import SequenceExerciseBoard from "@/components/SequenceExerciseBoard";
 
 export default function LessonPage() {
   const { id } = useParams<{ id: string }>();
@@ -51,7 +52,11 @@ export default function LessonPage() {
               </button>
             ))}
           </div>
-          {active && <ExerciseBoard key={active.id} exercise={active} />}
+          {active && active.mode === "sequence" ? (
+            <SequenceExerciseBoard key={active.id} exercise={active} />
+          ) : (
+            active && <ExerciseBoard key={active.id} exercise={active} />
+          )}
         </>
       )}
     </main>

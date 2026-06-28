@@ -18,6 +18,8 @@ export default function AdminLessonExercisesPage() {
 
   const [title, setTitle] = useState("");
   const [fen, setFen] = useState("");
+  const [mode, setMode] = useState<"free" | "sequence">("free");
+  const [scored, setScored] = useState(false);
   const [fromSquare, setFromSquare] = useState("");
   const [requireFlag, setRequireFlag] = useState("");
   const [solution, setSolution] = useState("");
@@ -36,6 +38,8 @@ export default function AdminLessonExercisesPage() {
   function resetForm() {
     setTitle("");
     setFen("");
+    setMode("free");
+    setScored(false);
     setFromSquare("");
     setRequireFlag("");
     setSolution("");
@@ -49,7 +53,9 @@ export default function AdminLessonExercisesPage() {
       lessonId: id,
       title,
       fen,
-      fromSquare,
+      mode,
+      ...(scored ? { scored: true } : {}),
+      ...(mode === "free" ? { fromSquare } : {}),
       ...(requireFlag ? { requireFlag } : {}),
       solution: solution.split(",").map((s) => s.trim()).filter(Boolean),
       explanation,
@@ -68,7 +74,9 @@ export default function AdminLessonExercisesPage() {
     setEditingId(ex.id);
     setTitle(ex.title);
     setFen(ex.fen);
-    setFromSquare(ex.fromSquare);
+    setMode(ex.mode ?? "free");
+    setScored(!!ex.scored);
+    setFromSquare(ex.fromSquare ?? "");
     setRequireFlag(ex.requireFlag ?? "");
     setSolution(ex.solution.join(", "));
     setExplanation(ex.explanation);
@@ -98,24 +106,47 @@ export default function AdminLessonExercisesPage() {
           placeholder="FEN (posición inicial)"
           required
         />
-        <input
-          value={fromSquare}
-          onChange={(e) => setFromSquare(e.target.value)}
-          placeholder="Casilla origen permitida (ej: e2)"
-          required
-        />
-        <select value={requireFlag} onChange={(e) => setRequireFlag(e.target.value)}>
-          <option value="">Cualquier jugada legal desde esa casilla</option>
-          <option value="n">Solo avance normal (1 casilla)</option>
-          <option value="b">Solo doble avance inicial (2 casillas)</option>
-          <option value="c">Solo captura</option>
-          <option value="e">Solo captura al paso</option>
-          <option value="p">Solo promoción</option>
+        <select value={mode} onChange={(e) => setMode(e.target.value as "free" | "sequence")}>
+          <option value="free">Libre (cualquier jugada legal desde una casilla)</option>
+          <option value="sequence">Secuencia (movimientos exactos, rival automático)</option>
         </select>
+        {mode === "sequence" && (
+          <label style={{ display: "flex", gap: 8, marginBottom: 10, color: "var(--text-dim)", fontSize: "0.85rem" }}>
+            <input
+              type="checkbox"
+              checked={scored}
+              onChange={(e) => setScored(e.target.checked)}
+              style={{ width: "auto", marginBottom: 0 }}
+            />
+            Con puntaje (correcto +1, incorrecto -1)
+          </label>
+        )}
+        {mode === "free" && (
+          <input
+            value={fromSquare}
+            onChange={(e) => setFromSquare(e.target.value)}
+            placeholder="Casilla origen permitida (ej: e2)"
+            required
+          />
+        )}
+        {mode === "free" && (
+          <select value={requireFlag} onChange={(e) => setRequireFlag(e.target.value)}>
+            <option value="">Cualquier jugada legal desde esa casilla</option>
+            <option value="n">Solo avance normal (1 casilla)</option>
+            <option value="b">Solo doble avance inicial (2 casillas)</option>
+            <option value="c">Solo captura</option>
+            <option value="e">Solo captura al paso</option>
+            <option value="p">Solo promoción</option>
+          </select>
+        )}
         <input
           value={solution}
           onChange={(e) => setSolution(e.target.value)}
-          placeholder="Solución en SAN, separada por comas (ej: Nf3, e5) — referencia"
+          placeholder={
+            mode === "sequence"
+              ? "Movimientos en SAN, en orden (ej: Qh5, g6, Qxf7)"
+              : "Solución en SAN, separada por comas — referencia"
+          }
           required
         />
         <textarea

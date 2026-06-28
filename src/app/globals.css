@@ -249,6 +249,8 @@ p {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   font-weight: 600;
+  background: var(--bg-elevated);
+  color: var(--text-dim);
 }
 
 .badge-basico {
@@ -406,6 +408,34 @@ button[type="submit"]:hover,
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
+.exercise-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.exercise-card-header h3 {
+  margin-bottom: 0;
+}
+
+.score-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.score-final {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .board-wrap {
   position: relative;
   border-radius: 6px;
@@ -519,6 +549,18 @@ button[type="submit"]:hover,
 
 .level-section {
   margin-bottom: 28px;
+}
+
+.category-block {
+  margin-bottom: 18px;
+}
+
+.category-title {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
 }
 
 .login-shell {
