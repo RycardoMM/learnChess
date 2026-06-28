@@ -5,7 +5,11 @@ import Link from "next/link";
 import { getLessons } from "@/lib/lessons";
 import type { Lesson, Level } from "@/lib/types";
 
-const LEVELS: Level[] = ["basico", "intermedio", "avanzado"];
+const LEVELS: { value: Level; label: string }[] = [
+  { value: "basico", label: "Básico" },
+  { value: "intermedio", label: "Intermedio" },
+  { value: "avanzado", label: "Avanzado" },
+];
 
 export default function HomePage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -15,25 +19,30 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main style={{ maxWidth: 700, margin: "40px auto" }}>
+    <main className="page">
       <h1>Portal de Aprendizaje de Ajedrez</h1>
-      {LEVELS.map((level) => (
-        <section key={level} style={{ marginBottom: 24 }}>
-          <h2 style={{ textTransform: "capitalize" }}>{level}</h2>
-          <ul>
-            {lessons
-              .filter((l) => l.level === level)
-              .map((l) => (
-                <li key={l.id}>
-                  <Link href={`/lesson/${l.id}`}>{l.title}</Link>
-                </li>
-              ))}
-            {lessons.filter((l) => l.level === level).length === 0 && (
-              <li style={{ color: "#888" }}>Sin lecciones todavía</li>
+      <p>Aprende ajedrez paso a paso, desde lo básico hasta conceptos avanzados.</p>
+
+      {LEVELS.map(({ value, label }) => {
+        const items = lessons.filter((l) => l.level === value);
+        return (
+          <section key={value} className="level-section">
+            <h2>{label}</h2>
+            {items.length === 0 ? (
+              <p className="empty-state">Sin lecciones todavía</p>
+            ) : (
+              <ul className="card-list">
+                {items.map((l) => (
+                  <li key={l.id}>
+                    <Link href={`/lesson/${l.id}`}>{l.title}</Link>
+                    <span className={`badge badge-${l.level}`}>{label}</span>
+                  </li>
+                ))}
+              </ul>
             )}
-          </ul>
-        </section>
-      ))}
+          </section>
+        );
+      })}
     </main>
   );
 }

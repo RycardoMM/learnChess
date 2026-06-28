@@ -24,21 +24,20 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main style={{ maxWidth: 320, margin: "80px auto" }}>
+    <main className="login-shell">
       <h1>Admin Login</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ marginTop: 16 }}>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          style={{ width: "100%", padding: 8, marginBottom: 12 }}
         />
-        <button type="submit" style={{ width: "100%", padding: 8 }}>
+        <button type="submit" style={{ width: "100%" }}>
           Entrar
         </button>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: "var(--danger)", marginTop: 8 }}>{error}</p>}
     </main>
   );
 }

@@ -53,7 +53,7 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
   }
 
   return (
-    <div style={{ maxWidth: 360 }}>
+    <div className="exercise-card">
       <h3>{exercise.title}</h3>
       <Chessboard
         options={{
@@ -63,12 +63,14 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
         }}
       />
       {status === "correct" && (
-        <p style={{ color: "green" }}>¡Correcto! {exercise.explanation}</p>
+        <p className="exercise-status correct">¡Correcto! {exercise.explanation}</p>
       )}
       {status === "incorrect" && (
-        <div>
-          <p style={{ color: "red" }}>Movimiento incorrecto.</p>
-          <button onClick={reset}>Reintentar</button>
+        <div className="exercise-status incorrect">
+          <p>Movimiento incorrecto.</p>
+          <button onClick={reset} className="btn-sm">
+            Reintentar
+          </button>
         </div>
       )}
     </div>

@@ -71,58 +71,58 @@ export default function AdminLessonExercisesPage() {
     refresh();
   }
 
-  if (!lesson) return <main style={{ maxWidth: 600, margin: "40px auto" }}>Cargando...</main>;
+  if (!lesson) return <main className="page">Cargando...</main>;
 
   return (
-    <main style={{ maxWidth: 600, margin: "40px auto" }}>
+    <main className="page">
       <h1>Ejercicios: {lesson.title}</h1>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: 24 }}>
+      <form onSubmit={handleSubmit} className="card" style={{ marginTop: 16 }}>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Título del ejercicio"
           required
-          style={{ width: "100%", padding: 8, marginBottom: 8 }}
         />
         <input
           value={fen}
           onChange={(e) => setFen(e.target.value)}
           placeholder="FEN (posición inicial)"
           required
-          style={{ width: "100%", padding: 8, marginBottom: 8 }}
         />
         <input
           value={solution}
           onChange={(e) => setSolution(e.target.value)}
           placeholder="Solución en SAN, separada por comas (ej: Nf3, e5)"
           required
-          style={{ width: "100%", padding: 8, marginBottom: 8 }}
         />
         <textarea
           value={explanation}
           onChange={(e) => setExplanation(e.target.value)}
           placeholder="Explicación al resolver"
-          style={{ width: "100%", padding: 8, marginBottom: 8, minHeight: 60 }}
         />
-        <button type="submit">{editingId ? "Actualizar" : "Crear"}</button>
-        {editingId && (
-          <button type="button" onClick={resetForm} style={{ marginLeft: 8 }}>
-            Cancelar
-          </button>
-        )}
+        <div className="row-actions">
+          <button type="submit">{editingId ? "Actualizar" : "Crear"}</button>
+          {editingId && (
+            <button type="button" onClick={resetForm}>
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
 
-      <ul>
+      <ul className="card-list" style={{ marginTop: 16 }}>
         {exercises.map((ex) => (
-          <li key={ex.id} style={{ marginBottom: 8 }}>
+          <li key={ex.id}>
             <strong>{ex.title}</strong>
-            <button onClick={() => startEdit(ex)} style={{ marginLeft: 8 }}>
-              Editar
-            </button>
-            <button onClick={() => handleDelete(ex.id)} style={{ marginLeft: 8 }}>
-              Borrar
-            </button>
+            <span className="row-actions">
+              <button onClick={() => startEdit(ex)} className="btn-sm">
+                Editar
+              </button>
+              <button onClick={() => handleDelete(ex.id)} className="btn-sm btn-danger">
+                Borrar
+              </button>
+            </span>
           </li>
         ))}
       </ul>

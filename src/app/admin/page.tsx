@@ -63,25 +63,22 @@ export default function AdminPage() {
   }
 
   return (
-    <main style={{ maxWidth: 600, margin: "40px auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h1>Admin - Lecciones</h1>
-        <button onClick={handleLogout}>Salir</button>
+    <main className="page">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1>Admin · Lecciones</h1>
+        <button onClick={handleLogout} className="btn-sm">
+          Salir
+        </button>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: 24 }}>
+      <form onSubmit={handleSubmit} className="card" style={{ marginTop: 16 }}>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Título"
           required
-          style={{ width: "100%", padding: 8, marginBottom: 8 }}
         />
-        <select
-          value={level}
-          onChange={(e) => setLevel(e.target.value as Level)}
-          style={{ width: "100%", padding: 8, marginBottom: 8 }}
-        >
+        <select value={level} onChange={(e) => setLevel(e.target.value as Level)}>
           <option value="basico">Básico</option>
           <option value="intermedio">Intermedio</option>
           <option value="avanzado">Avanzado</option>
@@ -91,29 +88,35 @@ export default function AdminPage() {
           onChange={(e) => setContent(e.target.value)}
           placeholder="Contenido"
           required
-          style={{ width: "100%", padding: 8, marginBottom: 8, minHeight: 100 }}
         />
-        <button type="submit">{editingId ? "Actualizar" : "Crear"}</button>
-        {editingId && (
-          <button type="button" onClick={resetForm} style={{ marginLeft: 8 }}>
-            Cancelar
-          </button>
-        )}
+        <div className="row-actions">
+          <button type="submit">{editingId ? "Actualizar" : "Crear"}</button>
+          {editingId && (
+            <button type="button" onClick={resetForm}>
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
 
-      <ul>
+      <ul className="card-list" style={{ marginTop: 16 }}>
         {lessons.map((lesson) => (
-          <li key={lesson.id} style={{ marginBottom: 8 }}>
-            <strong>{lesson.title}</strong> ({lesson.level})
-            <Link href={`/admin/lessons/${lesson.id}`} style={{ marginLeft: 8 }}>
-              Ejercicios
-            </Link>
-            <button onClick={() => startEdit(lesson)} style={{ marginLeft: 8 }}>
-              Editar
-            </button>
-            <button onClick={() => handleDelete(lesson.id)} style={{ marginLeft: 8 }}>
-              Borrar
-            </button>
+          <li key={lesson.id}>
+            <span>
+              <strong>{lesson.title}</strong>{" "}
+              <span className={`badge badge-${lesson.level}`}>{lesson.level}</span>
+            </span>
+            <span className="row-actions">
+              <Link href={`/admin/lessons/${lesson.id}`} className="btn btn-sm">
+                Ejercicios
+              </Link>
+              <button onClick={() => startEdit(lesson)} className="btn-sm">
+                Editar
+              </button>
+              <button onClick={() => handleDelete(lesson.id)} className="btn-sm btn-danger">
+                Borrar
+              </button>
+            </span>
           </li>
         ))}
       </ul>

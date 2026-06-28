@@ -17,15 +17,16 @@ export default function LessonPage() {
     getExercisesByLesson(id).then(setExercises);
   }, [id]);
 
-  if (!lesson) return <main style={{ maxWidth: 700, margin: "40px auto" }}>Cargando...</main>;
+  if (!lesson) return <main className="page">Cargando...</main>;
 
   return (
-    <main style={{ maxWidth: 700, margin: "40px auto" }}>
+    <main className="page">
+      <span className={`badge badge-${lesson.level}`}>{lesson.level}</span>
       <h1>{lesson.title}</h1>
       <p>{lesson.content}</p>
 
       <h2>Ejercicios</h2>
-      {exercises.length === 0 && <p style={{ color: "#888" }}>Sin ejercicios todavía</p>}
+      {exercises.length === 0 && <p className="empty-state">Sin ejercicios todavía</p>}
       {exercises.map((ex) => (
         <ExerciseBoard key={ex.id} exercise={ex} />
       ))}
