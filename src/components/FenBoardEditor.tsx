@@ -2,16 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Chess, type PieceSymbol, type Color, type Square } from "chess.js";
+import { defaultPieces } from "react-chessboard";
 
 const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const RANKS = ["8", "7", "6", "5", "4", "3", "2", "1"];
 
 const PIECE_TYPES: PieceSymbol[] = ["k", "q", "r", "b", "n", "p"];
 
-const PIECE_UNICODE: Record<Color, Record<PieceSymbol, string>> = {
-  w: { k: "♔", q: "♕", r: "♖", b: "♗", n: "♘", p: "♙" },
-  b: { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" },
-};
+function PieceIcon({ color, type }: { color: Color; type: PieceSymbol }) {
+  const Piece = defaultPieces[`${color}${type.toUpperCase()}` as keyof typeof defaultPieces];
+  return <Piece />;
+}
 
 type Tool = { color: Color; type: PieceSymbol } | "erase";
 
@@ -85,7 +86,7 @@ export default function FenBoardEditor({
             }`}
             onClick={() => setTool({ color: "w", type: t })}
           >
-            {PIECE_UNICODE.w[t]}
+            <PieceIcon color="w" type={t} />
           </button>
         ))}
         <button
@@ -107,7 +108,7 @@ export default function FenBoardEditor({
             }`}
             onClick={() => setTool({ color: "b", type: t })}
           >
-            {PIECE_UNICODE.b[t]}
+            <PieceIcon color="b" type={t} />
           </button>
         ))}
       </div>
@@ -124,7 +125,7 @@ export default function FenBoardEditor({
                 className={`fen-square ${dark ? "fen-square-dark" : "fen-square-light"}`}
                 onClick={() => handleSquareClick(square)}
               >
-                {cell ? PIECE_UNICODE[cell.color][cell.type] : ""}
+                {cell && <PieceIcon color={cell.color} type={cell.type} />}
               </button>
             );
           })
