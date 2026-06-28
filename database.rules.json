@@ -2,11 +2,13 @@
   "rules": {
     "lessons": {
       ".read": true,
-      ".write": false
+      ".write": false,
+      ".indexOn": ["order"]
     },
     "exercises": {
       ".read": true,
-      ".write": false
+      ".write": false,
+      ".indexOn": ["lessonId", "order"]
     }
   }
 }

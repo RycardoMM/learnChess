@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   getLessons,
   createLesson,
@@ -104,6 +105,9 @@ export default function AdminPage() {
         {lessons.map((lesson) => (
           <li key={lesson.id} style={{ marginBottom: 8 }}>
             <strong>{lesson.title}</strong> ({lesson.level})
+            <Link href={`/admin/lessons/${lesson.id}`} style={{ marginLeft: 8 }}>
+              Ejercicios
+            </Link>
             <button onClick={() => startEdit(lesson)} style={{ marginLeft: 8 }}>
               Editar
             </button>

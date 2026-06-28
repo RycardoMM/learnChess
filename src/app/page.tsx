@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { getLessons } from "@/lib/lessons";
 import type { Lesson, Level } from "@/lib/types";
 
@@ -23,7 +24,9 @@ export default function HomePage() {
             {lessons
               .filter((l) => l.level === level)
               .map((l) => (
-                <li key={l.id}>{l.title}</li>
+                <li key={l.id}>
+                  <Link href={`/lesson/${l.id}`}>{l.title}</Link>
+                </li>
               ))}
             {lessons.filter((l) => l.level === level).length === 0 && (
               <li style={{ color: "#888" }}>Sin lecciones todavía</li>

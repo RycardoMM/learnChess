@@ -9,6 +9,12 @@ export async function getLessons(): Promise<Lesson[]> {
   return Object.entries(data).map(([id, value]) => ({ id, ...value }));
 }
 
+export async function getLesson(id: string): Promise<Lesson | null> {
+  const snap = await get(ref(rtdb, `lessons/${id}`));
+  if (!snap.exists()) return null;
+  return { id, ...(snap.val() as Omit<Lesson, "id">) };
+}
+
 export async function createLesson(data: Omit<Lesson, "id">) {
   const res = await fetch("/api/lessons", {
     method: "POST",
