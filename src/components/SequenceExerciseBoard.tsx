@@ -20,20 +20,16 @@ const PROMOTION_ICONS: Record<"w" | "b", Record<PieceSymbol, string>> = {
   b: { q: "♛", r: "♜", n: "♞", b: "♝", p: "♟", k: "♚" },
 };
 
-function formatMoveList(solution: string[]) {
-  const pairs: string[] = [];
-  for (let i = 0; i < solution.length; i += 2) {
-    const num = i / 2 + 1;
-    const white = solution[i] ?? "";
-    const black = solution[i + 1] ?? "";
-    pairs.push(`${num}. ${white}${black ? " " + black : ""}`);
-  }
-  return pairs.join("  ");
+function fenAfter(fen: string, solution: string[], count: number) {
+  const g = new Chess(fen);
+  for (let i = 0; i < count; i++) g.move(solution[i]);
+  return g.fen();
 }
 
 export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise }) {
   const scored = !!exercise.scored;
   const [viewMode, setViewMode] = useState<ViewMode>(scored ? "estudiar" : "practicar");
+  const [studyIndex, setStudyIndex] = useState(0);
   const [game, setGame] = useState(() => new Chess(exercise.fen));
   const [moveIndex, setMoveIndex] = useState(0);
   const [status, setStatus] = useState<Status>("playing");
@@ -45,6 +41,10 @@ export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise
   } | null>(null);
   const opponentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const position = useMemo(() => game.fen(), [game]);
+  const studyPosition = useMemo(
+    () => fenAfter(exercise.fen, exercise.solution, studyIndex),
+    [exercise.fen, exercise.solution, studyIndex]
+  );
 
   function reset() {
     if (opponentTimer.current) clearTimeout(opponentTimer.current);
@@ -62,6 +62,7 @@ export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise
 
   function backToStudy() {
     reset();
+    setStudyIndex(0);
     setViewMode("estudiar");
   }
 
@@ -143,6 +144,20 @@ export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise
     setPendingPromotion(null);
   }
 
+  const movePairs = useMemo(() => {
+    const pairs: { num: number; white?: string; black?: string }[] = [];
+    for (let i = 0; i < exercise.solution.length; i += 2) {
+      pairs.push({
+        num: i / 2 + 1,
+        white: exercise.solution[i],
+        black: exercise.solution[i + 1],
+      });
+    }
+    return pairs;
+  }, [exercise.solution]);
+
+  const displayPosition = viewMode === "estudiar" ? studyPosition : position;
+
   return (
     <div className="exercise-card">
       <div className="exercise-card-header">
@@ -170,11 +185,47 @@ export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise
       )}
 
       {scored && viewMode === "estudiar" && (
-        <div className="move-list">{formatMoveList(exercise.solution)}</div>
+        <>
+          <div className="move-list">
+            {movePairs.map((pair, i) => (
+              <span key={pair.num} className="move-pair">
+                <span className="move-num">{pair.num}.</span>
+                {pair.white && (
+                  <span className={`move-token ${studyIndex - 1 === i * 2 ? "move-active" : ""}`}>
+                    {pair.white}
+                  </span>
+                )}
+                {pair.black && (
+                  <span
+                    className={`move-token ${studyIndex - 1 === i * 2 + 1 ? "move-active" : ""}`}
+                  >
+                    {pair.black}
+                  </span>
+                )}
+              </span>
+            ))}
+          </div>
+          <div className="study-controls">
+            <button
+              className="btn-sm"
+              onClick={() => setStudyIndex((i) => Math.max(0, i - 1))}
+              disabled={studyIndex === 0}
+            >
+              ← Anterior
+            </button>
+            <button
+              className="btn-sm"
+              onClick={() => setStudyIndex((i) => Math.min(exercise.solution.length, i + 1))}
+              disabled={studyIndex === exercise.solution.length}
+            >
+              Siguiente →
+            </button>
+          </div>
+        </>
       )}
 
       <CoordBoard
-        options={{ position, onPieceDrop, id: exercise.id }}
+        options={{ position: displayPosition, onPieceDrop, id: exercise.id }}
         overlay={
           <>
             {pendingPromotion && (

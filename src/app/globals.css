@@ -447,11 +447,42 @@ button[type="submit"]:hover,
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 10px 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-family: var(--font-geist-mono), monospace;
   font-size: 0.88rem;
   color: var(--text);
   line-height: 1.6;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.move-pair {
+  display: inline-flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.move-num {
+  color: var(--text-dim);
+}
+
+.move-token {
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.move-active {
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.study-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .board-wrap {
