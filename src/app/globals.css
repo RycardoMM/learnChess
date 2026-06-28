@@ -393,6 +393,15 @@ button[type="submit"]:hover,
   stroke-linejoin: round;
 }
 
+.incorrect-circle {
+  background: #4a2c2c;
+  box-shadow: 0 0 0 8px rgba(74, 44, 44, 0.35);
+}
+
+.incorrect-cross path {
+  stroke: #d6705f;
+}
+
 .level-section {
   margin-bottom: 28px;
 }

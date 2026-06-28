@@ -6,7 +6,7 @@ import { Chess, type PieceSymbol, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import type { Exercise } from "@/lib/types";
 
-type Status = "playing" | "correct" | "wrong-piece" | "wrong-move-type";
+type Status = "playing" | "correct" | "incorrect";
 
 const PROMOTION_CHOICES: { piece: PieceSymbol; label: string }[] = [
   { piece: "q", label: "Dama" },
@@ -48,7 +48,7 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
     if (!move) return;
 
     if (exercise.requireFlag && !move.flags.includes(exercise.requireFlag)) {
-      setStatus("wrong-move-type");
+      setStatus("incorrect");
       return;
     }
 
@@ -58,7 +58,7 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
       const direction =
         fileDiff === 0 ? "vertical" : rankDiff === 0 ? "horizontal" : "diagonal";
       if (direction !== exercise.requireDirection) {
-        setStatus("wrong-move-type");
+        setStatus("incorrect");
         return;
       }
     }
@@ -77,7 +77,7 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
     if (!targetSquare || status !== "playing") return false;
 
     if (sourceSquare !== exercise.fromSquare) {
-      setStatus("wrong-piece");
+      setStatus("incorrect");
       return false;
     }
 
@@ -137,28 +137,25 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
                 <path d="M14 27l7 7 17-17" />
               </svg>
             </div>
-            <button onClick={() => router.push("/")} className="btn-sm">
+            <button onClick={() => router.push(`/lesson/${exercise.lessonId}`)} className="btn-sm">
               Volver
             </button>
           </div>
         )}
+        {status === "incorrect" && (
+          <div className="correct-overlay incorrect-overlay">
+            <div className="correct-circle incorrect-circle">
+              <svg viewBox="0 0 52 52" className="correct-tick incorrect-cross">
+                <circle cx="26" cy="26" r="25" />
+                <path d="M16 16l20 20M36 16l-20 20" />
+              </svg>
+            </div>
+            <button onClick={reset} className="btn-sm">
+              Reintentar
+            </button>
+          </div>
+        )}
       </div>
-      {status === "wrong-piece" && (
-        <div className="exercise-status incorrect">
-          <p>Mueve la pieza que se está enseñando en este ejercicio.</p>
-          <button onClick={reset} className="btn-sm">
-            Reintentar
-          </button>
-        </div>
-      )}
-      {status === "wrong-move-type" && (
-        <div className="exercise-status incorrect">
-          <p>Ese movimiento es legal, pero no es el tipo de jugada que este ejercicio enseña.</p>
-          <button onClick={reset} className="btn-sm">
-            Reintentar
-          </button>
-        </div>
-      )}
     </div>
   );
 }
