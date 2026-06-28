@@ -481,6 +481,56 @@ button[type="submit"]:hover,
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
+.play-card {
+  max-width: 640px;
+}
+
+.play-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.play-layout .board-frame {
+  flex: 1;
+  min-width: 0;
+}
+
+.move-panel {
+  width: 160px;
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.move-panel-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.82rem;
+}
+
+.move-panel-list li {
+  display: flex;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .play-layout {
+    flex-direction: column;
+  }
+  .move-panel {
+    width: 100%;
+    max-height: 160px;
+  }
+}
+
 .exercise-card-header {
   display: flex;
   align-items: center;

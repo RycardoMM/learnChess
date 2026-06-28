@@ -34,6 +34,14 @@ function gameOverMessage(game: Chess): string | null {
   return null;
 }
 
+function movePairs(history: string[]) {
+  const pairs: { num: number; white?: string; black?: string }[] = [];
+  for (let i = 0; i < history.length; i += 2) {
+    pairs.push({ num: i / 2 + 1, white: history[i], black: history[i + 1] });
+  }
+  return pairs;
+}
+
 export default function PlayBoard() {
   const [difficulty, setDifficulty] = useState<Difficulty>("facil");
   const [game, setGame] = useState(() => new Chess());
@@ -46,6 +54,7 @@ export default function PlayBoard() {
   const moveLock = useRef(false);
   const position = useMemo(() => game.fen(), [game]);
   const overMessage = gameOverMessage(game);
+  const history = useMemo(() => game.history(), [game]);
 
   function newGame() {
     moveLock.current = false;
@@ -55,7 +64,10 @@ export default function PlayBoard() {
   }
 
   async function playAiReply(afterHuman: Chess) {
-    if (afterHuman.isGameOver()) return;
+    if (afterHuman.isGameOver()) {
+      moveLock.current = false;
+      return;
+    }
     setThinking(true);
     const engineMove = await getBestMove(afterHuman.fen(), DIFFICULTY_DEPTH[difficulty]);
     const next = new Chess(afterHuman.fen());
@@ -87,7 +99,10 @@ export default function PlayBoard() {
     } catch {
       move = null;
     }
-    if (!move) return;
+    if (!move) {
+      moveLock.current = false;
+      return;
+    }
     setGame(next);
     playAiReply(next);
   }
@@ -101,6 +116,11 @@ export default function PlayBoard() {
   }) {
     if (!targetSquare || thinking || moveLock.current || overMessage) return false;
     if (game.turn() !== "w") return false;
+
+    const isLegal = game
+      .moves({ square: sourceSquare as Square, verbose: true })
+      .some((m) => m.to === targetSquare);
+    if (!isLegal) return false;
 
     const isPromotion = game
       .moves({ square: sourceSquare as Square, verbose: true })
@@ -142,39 +162,60 @@ export default function PlayBoard() {
         ))}
       </div>
 
-      <CoordBoard
-        options={{ position, onPieceDrop, id: "play-vs-ai" }}
-        overlay={
-          <>
-            {pendingPromotion && (
-              <div className="promotion-overlay">
-                <p>Elige la pieza:</p>
-                <div className="promotion-choices">
-                  {PROMOTION_CHOICES.map(({ piece, label }) => (
-                    <button
-                      key={piece}
-                      onClick={() => choosePromotion(piece)}
-                      className="promotion-choice"
-                      title={label}
-                      aria-label={label}
-                    >
-                      {PROMOTION_ICONS[pendingPromotion.color][piece]}
-                    </button>
-                  ))}
+      <div className="play-layout">
+        <CoordBoard
+          options={{ position, onPieceDrop, id: "play-vs-ai" }}
+          overlay={
+            <>
+              {pendingPromotion && (
+                <div className="promotion-overlay">
+                  <p>Elige la pieza:</p>
+                  <div className="promotion-choices">
+                    {PROMOTION_CHOICES.map(({ piece, label }) => (
+                      <button
+                        key={piece}
+                        onClick={() => choosePromotion(piece)}
+                        className="promotion-choice"
+                        title={label}
+                        aria-label={label}
+                      >
+                        {PROMOTION_ICONS[pendingPromotion.color][piece]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-            {overMessage && (
-              <div className="correct-overlay">
-                <p className="score-final">{overMessage}</p>
-                <button onClick={newGame} className="btn-sm">
-                  Nueva partida
-                </button>
-              </div>
-            )}
-          </>
-        }
-      />
+              )}
+              {overMessage && (
+                <div className="correct-overlay">
+                  <p className="score-final">{overMessage}</p>
+                  <button onClick={newGame} className="btn-sm">
+                    Nueva partida
+                  </button>
+                </div>
+              )}
+            </>
+          }
+        />
+
+        <div className="move-panel">
+          <p className="sidebar-title" style={{ marginTop: 0 }}>
+            Jugadas
+          </p>
+          {history.length === 0 ? (
+            <p className="empty-state">Sin jugadas todavía</p>
+          ) : (
+            <ol className="move-panel-list">
+              {movePairs(history).map((pair) => (
+                <li key={pair.num}>
+                  <span className="move-num">{pair.num}.</span>
+                  <span>{pair.white}</span>
+                  <span>{pair.black ?? ""}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </div>
 
       <div className="row-actions" style={{ marginTop: 12 }}>
         <button onClick={newGame} className="btn-sm">
