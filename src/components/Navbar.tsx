@@ -8,6 +8,7 @@ export default function Navbar() {
       </Link>
       <div className="navbar-links">
         <Link href="/">Lecciones</Link>
+        <Link href="/play">Jugar vs IA</Link>
         <Link href="/admin">Admin</Link>
       </div>
     </nav>

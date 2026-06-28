@@ -82,6 +82,74 @@ html {
   width: 100%;
 }
 
+.home-layout {
+  display: flex;
+  flex: 1;
+}
+
+.home-layout .page {
+  margin: 0;
+  flex: 1;
+}
+
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  padding: 24px 16px;
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 57px;
+  align-self: flex-start;
+  height: calc(100vh - 57px);
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  margin: 18px 0 8px;
+}
+
+.sidebar-title:first-child {
+  margin-top: 0;
+}
+
+.sidebar-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-list a {
+  display: block;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-list a:hover {
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+@media (max-width: 700px) {
+  .home-layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
 .navbar {
   position: sticky;
   top: 0;
