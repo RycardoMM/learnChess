@@ -5,7 +5,7 @@ import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import type { Exercise } from "@/lib/types";
 
-type Status = "playing" | "correct";
+type Status = "playing" | "correct" | "wrong-piece" | "wrong-move-type";
 
 export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
   const [game, setGame] = useState(() => new Chess(exercise.fen));
@@ -26,6 +26,11 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
   }) {
     if (!targetSquare || status !== "playing") return false;
 
+    if (sourceSquare !== exercise.fromSquare) {
+      setStatus("wrong-piece");
+      return false;
+    }
+
     const next = new Chess(game.fen());
     let move;
     try {
@@ -34,6 +39,11 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
       return false;
     }
     if (!move) return false;
+
+    if (exercise.requireFlag && !move.flags.includes(exercise.requireFlag)) {
+      setStatus("wrong-move-type");
+      return false;
+    }
 
     setGame(next);
     setStatus("correct");
@@ -53,6 +63,22 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
       {status === "correct" && (
         <div className="exercise-status correct">
           <p>¡Correcto! {exercise.explanation}</p>
+          <button onClick={reset} className="btn-sm">
+            Reintentar
+          </button>
+        </div>
+      )}
+      {status === "wrong-piece" && (
+        <div className="exercise-status incorrect">
+          <p>Mueve la pieza que se está enseñando en este ejercicio.</p>
+          <button onClick={reset} className="btn-sm">
+            Reintentar
+          </button>
+        </div>
+      )}
+      {status === "wrong-move-type" && (
+        <div className="exercise-status incorrect">
+          <p>Ese movimiento es legal, pero no es el tipo de jugada que este ejercicio enseña.</p>
           <button onClick={reset} className="btn-sm">
             Reintentar
           </button>

@@ -18,6 +18,8 @@ export default function AdminLessonExercisesPage() {
 
   const [title, setTitle] = useState("");
   const [fen, setFen] = useState("");
+  const [fromSquare, setFromSquare] = useState("");
+  const [requireFlag, setRequireFlag] = useState("");
   const [solution, setSolution] = useState("");
   const [explanation, setExplanation] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -34,6 +36,8 @@ export default function AdminLessonExercisesPage() {
   function resetForm() {
     setTitle("");
     setFen("");
+    setFromSquare("");
+    setRequireFlag("");
     setSolution("");
     setExplanation("");
     setEditingId(null);
@@ -45,6 +49,8 @@ export default function AdminLessonExercisesPage() {
       lessonId: id,
       title,
       fen,
+      fromSquare,
+      ...(requireFlag ? { requireFlag } : {}),
       solution: solution.split(",").map((s) => s.trim()).filter(Boolean),
       explanation,
       order: exercises.length,
@@ -62,6 +68,8 @@ export default function AdminLessonExercisesPage() {
     setEditingId(ex.id);
     setTitle(ex.title);
     setFen(ex.fen);
+    setFromSquare(ex.fromSquare);
+    setRequireFlag(ex.requireFlag ?? "");
     setSolution(ex.solution.join(", "));
     setExplanation(ex.explanation);
   }
@@ -91,9 +99,23 @@ export default function AdminLessonExercisesPage() {
           required
         />
         <input
+          value={fromSquare}
+          onChange={(e) => setFromSquare(e.target.value)}
+          placeholder="Casilla origen permitida (ej: e2)"
+          required
+        />
+        <select value={requireFlag} onChange={(e) => setRequireFlag(e.target.value)}>
+          <option value="">Cualquier jugada legal desde esa casilla</option>
+          <option value="n">Solo avance normal (1 casilla)</option>
+          <option value="b">Solo doble avance inicial (2 casillas)</option>
+          <option value="c">Solo captura</option>
+          <option value="e">Solo captura al paso</option>
+          <option value="p">Solo promoción</option>
+        </select>
+        <input
           value={solution}
           onChange={(e) => setSolution(e.target.value)}
-          placeholder="Solución en SAN, separada por comas (ej: Nf3, e5)"
+          placeholder="Solución en SAN, separada por comas (ej: Nf3, e5) — referencia"
           required
         />
         <textarea

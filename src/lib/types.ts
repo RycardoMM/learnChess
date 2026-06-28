@@ -13,6 +13,8 @@ export interface Exercise {
   lessonId: string;
   title: string;
   fen: string;
+  fromSquare: string;
+  requireFlag?: string;
   solution: string[];
   explanation: string;
   order: number;
