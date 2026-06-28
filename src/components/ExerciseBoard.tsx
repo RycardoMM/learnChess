@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Chess, type PieceSymbol, type Square } from "chess.js";
-import { Chessboard } from "react-chessboard";
 import type { Exercise } from "@/lib/types";
+import CoordBoard from "./CoordBoard";
 
 type Status = "playing" | "correct" | "incorrect";
 
@@ -105,59 +105,57 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
   return (
     <div className="exercise-card">
       <h3>{exercise.title}</h3>
-      <div className="board-wrap">
-        <Chessboard
-          options={{
-            position,
-            onPieceDrop,
-            id: exercise.id,
-          }}
-        />
-        {pendingPromotion && (
-          <div className="promotion-overlay">
-            <p>Elige la pieza:</p>
-            <div className="promotion-choices">
-              {PROMOTION_CHOICES.map(({ piece, label }) => (
-                <button
-                  key={piece}
-                  onClick={() => choosePromotion(piece)}
-                  className="promotion-choice"
-                  title={label}
-                  aria-label={label}
-                >
-                  {PROMOTION_ICONS[pendingPromotion.color][piece]}
+      <CoordBoard
+        options={{ position, onPieceDrop, id: exercise.id }}
+        overlay={
+          <>
+            {pendingPromotion && (
+              <div className="promotion-overlay">
+                <p>Elige la pieza:</p>
+                <div className="promotion-choices">
+                  {PROMOTION_CHOICES.map(({ piece, label }) => (
+                    <button
+                      key={piece}
+                      onClick={() => choosePromotion(piece)}
+                      className="promotion-choice"
+                      title={label}
+                      aria-label={label}
+                    >
+                      {PROMOTION_ICONS[pendingPromotion.color][piece]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {status === "correct" && (
+              <div className="correct-overlay">
+                <div className="correct-circle">
+                  <svg viewBox="0 0 52 52" className="correct-tick">
+                    <circle cx="26" cy="26" r="25" />
+                    <path d="M14 27l7 7 17-17" />
+                  </svg>
+                </div>
+                <button onClick={reset} className="btn-sm">
+                  Volver
                 </button>
-              ))}
-            </div>
-          </div>
-        )}
-        {status === "correct" && (
-          <div className="correct-overlay">
-            <div className="correct-circle">
-              <svg viewBox="0 0 52 52" className="correct-tick">
-                <circle cx="26" cy="26" r="25" />
-                <path d="M14 27l7 7 17-17" />
-              </svg>
-            </div>
-            <button onClick={reset} className="btn-sm">
-              Volver
-            </button>
-          </div>
-        )}
-        {status === "incorrect" && (
-          <div className="correct-overlay incorrect-overlay">
-            <div className="correct-circle incorrect-circle">
-              <svg viewBox="0 0 52 52" className="correct-tick incorrect-cross">
-                <circle cx="26" cy="26" r="25" />
-                <path d="M16 16l20 20M36 16l-20 20" />
-              </svg>
-            </div>
-            <button onClick={reset} className="btn-sm">
-              Reintentar
-            </button>
-          </div>
-        )}
-      </div>
+              </div>
+            )}
+            {status === "incorrect" && (
+              <div className="correct-overlay incorrect-overlay">
+                <div className="correct-circle incorrect-circle">
+                  <svg viewBox="0 0 52 52" className="correct-tick incorrect-cross">
+                    <circle cx="26" cy="26" r="25" />
+                    <path d="M16 16l20 20M36 16l-20 20" />
+                  </svg>
+                </div>
+                <button onClick={reset} className="btn-sm">
+                  Reintentar
+                </button>
+              </div>
+            )}
+          </>
+        }
+      />
     </div>
   );
 }

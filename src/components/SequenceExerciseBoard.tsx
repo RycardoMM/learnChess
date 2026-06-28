@@ -2,10 +2,11 @@
 
 import { useMemo, useRef, useState } from "react";
 import { Chess, type PieceSymbol, type Square } from "chess.js";
-import { Chessboard } from "react-chessboard";
 import type { Exercise } from "@/lib/types";
+import CoordBoard from "./CoordBoard";
 
 type Status = "playing" | "correct" | "incorrect" | "finished";
+type ViewMode = "estudiar" | "practicar";
 
 const PROMOTION_CHOICES: { piece: PieceSymbol; label: string }[] = [
   { piece: "q", label: "Dama" },
@@ -19,7 +20,20 @@ const PROMOTION_ICONS: Record<"w" | "b", Record<PieceSymbol, string>> = {
   b: { q: "♛", r: "♜", n: "♞", b: "♝", p: "♟", k: "♚" },
 };
 
+function formatMoveList(solution: string[]) {
+  const pairs: string[] = [];
+  for (let i = 0; i < solution.length; i += 2) {
+    const num = i / 2 + 1;
+    const white = solution[i] ?? "";
+    const black = solution[i + 1] ?? "";
+    pairs.push(`${num}. ${white}${black ? " " + black : ""}`);
+  }
+  return pairs.join("  ");
+}
+
 export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise }) {
+  const scored = !!exercise.scored;
+  const [viewMode, setViewMode] = useState<ViewMode>(scored ? "estudiar" : "practicar");
   const [game, setGame] = useState(() => new Chess(exercise.fen));
   const [moveIndex, setMoveIndex] = useState(0);
   const [status, setStatus] = useState<Status>("playing");
@@ -31,7 +45,6 @@ export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise
   } | null>(null);
   const opponentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const position = useMemo(() => game.fen(), [game]);
-  const scored = !!exercise.scored;
 
   function reset() {
     if (opponentTimer.current) clearTimeout(opponentTimer.current);
@@ -40,6 +53,16 @@ export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise
     setStatus("playing");
     setScore(0);
     setPendingPromotion(null);
+  }
+
+  function startPractice() {
+    reset();
+    setViewMode("practicar");
+  }
+
+  function backToStudy() {
+    reset();
+    setViewMode("estudiar");
   }
 
   function playOpponentReply(afterGame: Chess, nextIndex: number) {
@@ -99,7 +122,7 @@ export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise
     sourceSquare: string;
     targetSquare: string | null;
   }) {
-    if (!targetSquare || status !== "playing") return false;
+    if (viewMode !== "practicar" || !targetSquare || status !== "playing") return false;
 
     const isPromotion = game
       .moves({ square: sourceSquare as Square, verbose: true })
@@ -124,75 +147,97 @@ export default function SequenceExerciseBoard({ exercise }: { exercise: Exercise
     <div className="exercise-card">
       <div className="exercise-card-header">
         <h3>{exercise.title}</h3>
-        {scored && <span className="score-badge">Puntos: {score}</span>}
+        {scored && viewMode === "practicar" && (
+          <span className="score-badge">Puntos: {score}</span>
+        )}
       </div>
-      <div className="board-wrap">
-        <Chessboard
-          options={{
-            position,
-            onPieceDrop,
-            id: exercise.id,
-          }}
-        />
-        {pendingPromotion && (
-          <div className="promotion-overlay">
-            <p>Elige la pieza:</p>
-            <div className="promotion-choices">
-              {PROMOTION_CHOICES.map(({ piece, label }) => (
-                <button
-                  key={piece}
-                  onClick={() => choosePromotion(piece)}
-                  className="promotion-choice"
-                  title={label}
-                  aria-label={label}
-                >
-                  {PROMOTION_ICONS[pendingPromotion.color][piece]}
+
+      {scored && (
+        <div className="mode-toggle">
+          <button
+            className={`tab ${viewMode === "estudiar" ? "tab-active" : ""}`}
+            onClick={backToStudy}
+          >
+            Estudiar
+          </button>
+          <button
+            className={`tab ${viewMode === "practicar" ? "tab-active" : ""}`}
+            onClick={startPractice}
+          >
+            Practicar
+          </button>
+        </div>
+      )}
+
+      {scored && viewMode === "estudiar" && (
+        <div className="move-list">{formatMoveList(exercise.solution)}</div>
+      )}
+
+      <CoordBoard
+        options={{ position, onPieceDrop, id: exercise.id }}
+        overlay={
+          <>
+            {pendingPromotion && (
+              <div className="promotion-overlay">
+                <p>Elige la pieza:</p>
+                <div className="promotion-choices">
+                  {PROMOTION_CHOICES.map(({ piece, label }) => (
+                    <button
+                      key={piece}
+                      onClick={() => choosePromotion(piece)}
+                      className="promotion-choice"
+                      title={label}
+                      aria-label={label}
+                    >
+                      {PROMOTION_ICONS[pendingPromotion.color][piece]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {status === "correct" && (
+              <div className="correct-overlay">
+                <div className="correct-circle">
+                  <svg viewBox="0 0 52 52" className="correct-tick">
+                    <circle cx="26" cy="26" r="25" />
+                    <path d="M14 27l7 7 17-17" />
+                  </svg>
+                </div>
+                <button onClick={reset} className="btn-sm">
+                  Volver
                 </button>
-              ))}
-            </div>
-          </div>
-        )}
-        {status === "correct" && (
-          <div className="correct-overlay">
-            <div className="correct-circle">
-              <svg viewBox="0 0 52 52" className="correct-tick">
-                <circle cx="26" cy="26" r="25" />
-                <path d="M14 27l7 7 17-17" />
-              </svg>
-            </div>
-            <button onClick={reset} className="btn-sm">
-              Volver
-            </button>
-          </div>
-        )}
-        {status === "incorrect" && (
-          <div className="correct-overlay incorrect-overlay">
-            <div className="correct-circle incorrect-circle">
-              <svg viewBox="0 0 52 52" className="correct-tick incorrect-cross">
-                <circle cx="26" cy="26" r="25" />
-                <path d="M16 16l20 20M36 16l-20 20" />
-              </svg>
-            </div>
-            <button onClick={reset} className="btn-sm">
-              Reintentar
-            </button>
-          </div>
-        )}
-        {status === "finished" && (
-          <div className="correct-overlay">
-            <div className="correct-circle">
-              <svg viewBox="0 0 52 52" className="correct-tick">
-                <circle cx="26" cy="26" r="25" />
-                <path d="M14 27l7 7 17-17" />
-              </svg>
-            </div>
-            <p className="score-final">Puntaje final: {score}</p>
-            <button onClick={reset} className="btn-sm">
-              Reintentar
-            </button>
-          </div>
-        )}
-      </div>
+              </div>
+            )}
+            {status === "incorrect" && (
+              <div className="correct-overlay incorrect-overlay">
+                <div className="correct-circle incorrect-circle">
+                  <svg viewBox="0 0 52 52" className="correct-tick incorrect-cross">
+                    <circle cx="26" cy="26" r="25" />
+                    <path d="M16 16l20 20M36 16l-20 20" />
+                  </svg>
+                </div>
+                <button onClick={reset} className="btn-sm">
+                  Reintentar
+                </button>
+              </div>
+            )}
+            {status === "finished" && (
+              <div className="correct-overlay">
+                <div className="correct-circle">
+                  <svg viewBox="0 0 52 52" className="correct-tick">
+                    <circle cx="26" cy="26" r="25" />
+                    <path d="M14 27l7 7 17-17" />
+                  </svg>
+                </div>
+                <p className="score-final">Puntaje final: {score}</p>
+                <button onClick={reset} className="btn-sm">
+                  Reintentar
+                </button>
+              </div>
+            )}
+          </>
+        }
+      />
     </div>
   );
 }
