@@ -353,18 +353,16 @@ button[type="submit"]:hover,
 }
 
 .correct-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  background: rgba(10, 8, 5, 0.75);
+  background: rgba(10, 8, 5, 0.82);
+  border-radius: var(--radius);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 18px;
   z-index: 100;
-  cursor: pointer;
-  padding: 24px;
-  text-align: center;
 }
 
 .correct-circle {
@@ -393,12 +391,6 @@ button[type="submit"]:hover,
   stroke-width: 5;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.correct-explanation {
-  color: var(--text);
-  max-width: 420px;
-  font-size: 1rem;
 }
 
 .level-section {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Chess, type PieceSymbol, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import type { Exercise } from "@/lib/types";
@@ -20,6 +21,7 @@ const PROMOTION_ICONS: Record<"w" | "b", Record<PieceSymbol, string>> = {
 };
 
 export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
+  const router = useRouter();
   const [game, setGame] = useState(() => new Chess(exercise.fen));
   const [status, setStatus] = useState<Status>("playing");
   const [pendingPromotion, setPendingPromotion] = useState<{
@@ -127,23 +129,20 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
             </div>
           </div>
         )}
-      </div>
-      {status === "correct" && (
-        <div className="correct-overlay" onClick={reset}>
-          <div className="correct-circle" onClick={(e) => e.stopPropagation()}>
-            <svg viewBox="0 0 52 52" className="correct-tick">
-              <circle cx="26" cy="26" r="25" />
-              <path d="M14 27l7 7 17-17" />
-            </svg>
+        {status === "correct" && (
+          <div className="correct-overlay">
+            <div className="correct-circle">
+              <svg viewBox="0 0 52 52" className="correct-tick">
+                <circle cx="26" cy="26" r="25" />
+                <path d="M14 27l7 7 17-17" />
+              </svg>
+            </div>
+            <button onClick={() => router.push("/")} className="btn-sm">
+              Volver
+            </button>
           </div>
-          <p className="correct-explanation" onClick={(e) => e.stopPropagation()}>
-            {exercise.explanation}
-          </p>
-          <button onClick={reset} className="btn-sm">
-            Reintentar
-          </button>
-        </div>
-      )}
+        )}
+      </div>
       {status === "wrong-piece" && (
         <div className="exercise-status incorrect">
           <p>Mueve la pieza que se está enseñando en este ejercicio.</p>
