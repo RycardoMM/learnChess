@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { getLesson } from "@/lib/lessons";
 import { getExercisesByLesson } from "@/lib/exercises";
 import type { Lesson, Exercise } from "@/lib/types";
@@ -27,6 +28,9 @@ export default function LessonPage() {
 
   return (
     <main className="page">
+      <Link href="/" className="back-link">
+        ← Volver a lecciones
+      </Link>
       <span className={`badge badge-${lesson.level}`}>{lesson.level}</span>
       <h1>{lesson.title}</h1>
       <p>{lesson.content}</p>
