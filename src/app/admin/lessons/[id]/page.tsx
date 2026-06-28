@@ -82,6 +82,8 @@ export default function AdminLessonExercisesPage() {
     setRequireFlag(ex.requireFlag ?? "");
     setSolution(ex.solution.join(", "));
     setExplanation(ex.explanation);
+    setShowBoardEditor(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function handleDelete(exId: string) {
