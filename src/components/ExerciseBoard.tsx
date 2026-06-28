@@ -5,17 +5,15 @@ import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import type { Exercise } from "@/lib/types";
 
-type Status = "playing" | "correct" | "incorrect";
+type Status = "playing" | "correct";
 
 export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
   const [game, setGame] = useState(() => new Chess(exercise.fen));
-  const [moveIndex, setMoveIndex] = useState(0);
   const [status, setStatus] = useState<Status>("playing");
   const position = useMemo(() => game.fen(), [game]);
 
   function reset() {
     setGame(new Chess(exercise.fen));
-    setMoveIndex(0);
     setStatus("playing");
   }
 
@@ -37,18 +35,8 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
     }
     if (!move) return false;
 
-    const expected = exercise.solution[moveIndex];
-    if (move.san !== expected) {
-      setStatus("incorrect");
-      return false;
-    }
-
     setGame(next);
-    const nextIndex = moveIndex + 1;
-    setMoveIndex(nextIndex);
-    if (nextIndex >= exercise.solution.length) {
-      setStatus("correct");
-    }
+    setStatus("correct");
     return true;
   }
 
@@ -63,11 +51,8 @@ export default function ExerciseBoard({ exercise }: { exercise: Exercise }) {
         }}
       />
       {status === "correct" && (
-        <p className="exercise-status correct">¡Correcto! {exercise.explanation}</p>
-      )}
-      {status === "incorrect" && (
-        <div className="exercise-status incorrect">
-          <p>Movimiento incorrecto.</p>
+        <div className="exercise-status correct">
+          <p>¡Correcto! {exercise.explanation}</p>
           <button onClick={reset} className="btn-sm">
             Reintentar
           </button>
